@@ -1,6 +1,6 @@
 'use strict';
 angular.module('hnlyticsApp')
-.service('UserStatsService', function($firebase, getSubsService, $q){
+.service('UserStatsService', function($firebase, $timeout, getSubsService, $q, $rootScope){
 	var average, 
 	thisYearsSubs, 
 	lastYearsSubs, 
@@ -20,173 +20,164 @@ angular.module('hnlyticsApp')
 	averageTimes,
 	timesOfTheDay;
 
-	getSubsService.subs().then(function(data){
-		console.log("heeyyyy")
-	})	
+	
 	timesOfTheDay = [5,4,6,3,2,6,5,4,3,3,6,8,4,3,5,7,4,5,2,8,5,4,5,5];
 	var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
 	var items = ref.child('item');
 	var userRef = ref.child('user').child('pg');
 	var userSync = $firebase(userRef);
 	var userObj = userSync.$asObject();
-	var submissions = [];
-	var stories = [];
-	var comments = [];
 
 	var matchesYear = function(obj, year){
-		var date = new Date(obj.time);
-		var itemYear = date.getFullYear();
-		return year === itemYear;
+		return year === obj;
 	};
 	var matchesMonth = function(obj, month){
-		var date = new Date(obj.time);
-		var itemMonth = date.getMonth();
-		return month === itemMonth;
+		return month === obj;
 	};
 	var matchesWeek = function(obj, week){
-		var date = new Date(obj.time);
-		var itemWeek = date.getWeek();
-		return week === itemWeek;
+		return week === obj;
 	};
 
-	var getSubs = function(cb){
-		userRef.child('submitted').once('value', function(submitted){
-			var userSubmitted = submitted.val().slice(0, submitted.val().length/50)
-			for (var i = 0; i < userSubmitted.length; i++) {
-				(function(i){
-					items.child(userSubmitted[i]).once('value', function(sub){
-						if(i === userSubmitted.length-1){
-							cb(submissions, stories, comments)
-						}
-						if(sub.child('type').val() === null){
-							return;
-						}
-						if(sub.child('type').val() === "story"){
-							submissions.push(sub.val());
-							stories.push(sub.val());
-						}
-						if(sub.child('type').val() === "comment"){
-							submissions.push(sub.val());
-							comments.push(sub.val());
-						} else{
-							return
-						}
-					})
-				})(i)
+	var getUserData = function(cb){
+
+		getSubsService.subs().then(function(subs){
+			// AVERAGE POINTS PER POST
+			var submissions = subs;
+			average = Math.round((function(){
+				var totalPts = 0;
+				for (var i = 0; i < subs.length; i++) {
+					if(subs[i].score){
+						totalPts += subs[i].score;
+					} else if (submissions[i].kids){
+						totalPts += subs[i].kids.length;
+					}
+				}
+				return totalPts/subs.length;
+			})());
+
+			// POST FREQUENCY BY TIME
+			timesOfTheDay = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+			var averageTimes = subs
+			  .map(function(sub) {
+			  	var subTime = new Date(sub.time*1000);
+			    return subTime.getHours();
+			  })
+			  .reduce(function(last, now) {
+			    var index = last[0].indexOf(now);
+			    if (index === -1) {
+			      last[0].push(now);
+			      last[1].push(1);
+			    } else {
+			      last[1][index] += 1;
+			    }
+			    return last;
+			  }, [[], []])
+			  .reduce(function(last, now, index, context) {
+			    var zip = [];
+			    last.forEach(function(word, i) {
+			      zip.push([word, context[1][i]]);
+			    });
+			    return zip;
+			  });
+
+			for (var i = 0; i < averageTimes.length; i++) {
+			  	timesOfTheDay[averageTimes[i][0]]= averageTimes[i][1];
 			};
+
+
+			// SUBMISSIONS BY YEAR
+			thisYearsSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var year = now.getFullYear();
+				var objDate = new Date(obj.time*1000)
+				var objYear = objDate.getFullYear()
+				console.log( matchesYear(objYear, year))
+				return matchesYear(objYear, year);
+			});
+			lastYearsSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var year = now.getFullYear()-1;
+				var objDate = new Date(obj.time*1000)
+				var objYear = objDate.getFullYear()
+				return matchesYear(objYear, year);
+			});
+
+			// SUBMISSIONS BY MONTH
+			thisMonthsSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var month = now.getMonth();
+				var objDate = new Date(obj.time*1000)
+				var objMonths = objDate.getMonth()
+				console.log("this month", month, objMonths)
+				return matchesMonth(objMonths, month);
+			});
+			lastMonthsSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var month = now.getMonth()-1;
+				var objDate = new Date(obj.time*1000)
+				var objMonths = objDate.getMonth()
+				return matchesMonth(objMonths, month);
+			});
+
+			// SUBMISSIONS BY WEEK
+			thisWeeksSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var week = now.getWeek();
+				var objDate = new Date(obj.time)
+				var objWeek = objDate.getWeek()
+				return matchesWeek(objWeek, week);
+			});
+			lastWeeksSubs = _.filter(subs, function(obj){
+				var now = new Date();
+				var week = now.getWeek()-1;
+				var objDate = new Date(obj.time)
+				var objWeek = objDate.getWeek()
+				return matchesWeek(objWeek, week);
+			});
+
+			// TOTAL SUBMISSIONS BY PERIOD
+			thisYearsTot = thisYearsSubs.length;
+			lastYearsTot = lastYearsSubs.length;
+			thisMonthsTot = thisMonthsSubs.length;
+			lastMonthsTot = lastMonthsSubs.length;
+			thisWeeksTot = thisWeeksSubs.length;
+			lastWeeksTot = lastWeeksSubs.length;
+
+			// DIFFERENCE PERCENTAGES BY PERIOD
+			yearsDiff = thisYearsTot - lastWeeksTot / lastWeeksTot;
+			monthsDiff = thisMonthsTot - lastMonthsTot / lastMonthsTot;
+			weeksDiff =	thisWeeksTot - lastWeeksTot / lastWeeksTot;
+			
+			cb({average: average,
+			thisYearsTot: thisYearsTot,
+			lastYearsTot: lastYearsTot,
+			thisMonthsTot: thisMonthsTot,
+			lastMonthsTot: lastMonthsTot,
+			thisWeeksTot: thisWeeksTot,
+			lastWeeksTot: lastWeeksTot,
+			yearsDiff: yearsDiff,
+			monthsDiff: monthsDiff,
+			weeksDiff: weeksDiff,
+			timesOfTheDay: timesOfTheDay});
 		});
 	}
-
-	getSubs(function(subs, stories, comments){
-
-		average = Math.round((function(){
-			var totalPts = 0;
-			for (var i = 0; i < subs.length; i++) {
-				if(subs[i].score){
-					totalPts += subs[i].score;
-				} else if (submissions[i].kids){
-					totalPts += subs[i].kids.length;
-				}
-			}
-			return totalPts/subs.length;
-		})());
-
-		timesOfTheDay = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-		var averageTimes = subs
-		  .map(function(sub) {
-		  	var subTime = new Date(sub.time*1000);
-		    return subTime.getHours();
-		  })
-		  .reduce(function(last, now) {
-		    var index = last[0].indexOf(now);
-		    if (index === -1) {
-		      last[0].push(now);
-		      last[1].push(1);
-		    } else {
-		      last[1][index] += 1;
-		    }
-
-		    return last;
-		  }, [[], []])
-		  .reduce(function(last, now, index, context) {
-		    var zip = [];
-		    last.forEach(function(word, i) {
-		      zip.push([word, context[1][i]]);
-		    });
-		    return zip;
-		  });
-
-		for (var i = 0; i < averageTimes.length; i++) {
-		  	timesOfTheDay[averageTimes[i][0]]= averageTimes[i][1];
-		};
-
-		thisYearsSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var year = now.getFullYear();
-			return matchesYear(obj, year);
-		});
-		lastYearsSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var year = now.getFullYear()-1;
-			return matchesYear(obj, year);
-		});
-		thisMonthsSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var month = now.getMonth();
-			return matchesMonth(obj, month);
-		});
-		lastMonthsSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var month = now.getMonth()-1;
-			return matchesMonth(obj, month);
-		});
-		thisWeeksSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var week = now.getWeek();
-			return matchesWeek(obj, week);
-		});
-		lastWeeksSubs = _.filter(subs, function(obj){
-			var now = new Date();
-			var week = now.getWeek()-1;
-			return matchesWeek(obj, week);
-		});
-
-		thisYearsTot = thisYearsSubs.length;
-		lastYearsTot = lastYearsSubs.length;
-		thisMonthsTot = thisMonthsSubs.length;
-		lastMonthsTot = lastMonthsSubs.length;
-		thisWeeksTot = thisWeeksSubs.length;
-		lastWeeksTot = lastWeeksSubs.length;
-
-		yearsDiff = thisYearsTot - lastWeeksTot / lastWeeksTot;
-		monthsDiff = thisMonthsTot - lastMonthsTot / lastMonthsTot;
-		weeksDiff =	thisWeeksTot - lastWeeksTot / lastWeeksTot;
-
-		
-	});
-
-
-	// get all subs look at type value and sort by story or comment
-	// get total number of submissions last month and this month
-	// get the same for last week and last year
-	// compare both for activity difference
-	// get latest post and attach it to scope
 	return {
-		average: average,
-		submissions: submissions,
-		comments: comments,
-		thisYearsTot: thisYearsTot,
-		lastYearsTot: lastYearsTot,
-		thisMonthsTot: thisMonthsTot,
-		lastMonthsTot: lastMonthsTot,
-		thisWeeksTot: thisWeeksTot,
-		lastWeeksTot: lastWeeksTot,
-		yearsDiff: yearsDiff,
-		monthsDiff: monthsDiff,
-		weeksDiff: weeksDiff,
-		timesOfTheDay: timesOfTheDay
+		results: function(scope){
+			var deferred = $q.defer(); 
+			getUserData(function(data,scope){
+				$timeout(function() {
+					$rootScope.$apply(function(){
+		        		deferred.resolve(data);
+		       		});
+				});
+			});
+			return deferred.promise;
+		}
 	};
 });
+
+
+// APPEND GET WEEK METHOD TO THE PROTOTYPE
 
 Date.prototype.getWeek = function (dowOffset) {
 	/*getWeek() was developed by Nick Baicoianu at MeanFreePath: http://www.meanfreepath.com */

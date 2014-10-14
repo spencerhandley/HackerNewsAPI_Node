@@ -1,23 +1,29 @@
 <div class="col-sm-10">
   <div class="row">
-    <h1>PAUL GRAHAM</h1>
+    <h1 class="username">PAUL GRAHAM</h1>
     
   </div>
   <div class="row">
     <canvas barchart options="options" responsive=true data="chart" width="500" height="300"></canvas>
     <div>
-      <p>This week:{{thisWeeksTot}}</p>
+      <div class="total-node">
+        <p>{{thisWeeksTot}}</p>
+      </div>
+      <div class="change-node">
+        <p>{{weeks.diff}}</p>
+
+      </div>
     </div>
   </div>
     
 </div>
 <div class="col-sm-2">
   <div class="row">
-    <h4>USER DETAILS</h4> 
-    <p>Member Since: {{createdAt}}</p>
-    <p>Karma: {{karma}}</p>
-    <p>About: {{about}}</p>
-    <p>Submissions: {{submitted.length}}</p>
-    <p>Latest Post: {{latestPost}}</p>
+    <h4 class="details-header">USER DETAILS</h4> 
+    <p class="user-details">Member Since: {{createdAt}}</p>
+    <p class="user-details">Karma: {{karma}}</p>
+    <p class="user-details">About: {{about}}</p>
+    <p class="user-details">Submissions: {{submitted.length}}</p>
+    <p class="user-details">Latest Post: {{latestPost}}</p>
   </div>
 </div>

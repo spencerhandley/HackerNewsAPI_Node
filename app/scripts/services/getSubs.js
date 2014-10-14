@@ -5,14 +5,12 @@ angular.module('hnlyticsApp')
 	var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
 	var items = ref.child('item');
 	var userRef = ref.child('user').child('pg');
-	var userSync = $firebase(userRef);
-	var userObj = userSync.$asObject();
 	var submissions = [];
 	var stories = [];
 	var comments = [];
 	var getSubs = function(cb){
 		userRef.child('submitted').once('value', function(submitted){
-			var userSubmitted = submitted.val().slice(0, submitted.val().length/50)
+			var userSubmitted = submitted.val().slice(12000, submitted.val().length)
 			for (var i = 0; i < userSubmitted.length; i++) {
 				(function(i){
 					items.child(userSubmitted[i]).once('value', function(sub){
@@ -31,9 +29,9 @@ angular.module('hnlyticsApp')
 							comments.push(sub.val());
 						} else{
 							return
-						}
-					})
-				})(i)
+						};
+					});
+				})(i);
 			};
 		});
 	}

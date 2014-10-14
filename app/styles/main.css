@@ -6,6 +6,23 @@ body {
 .nav-item a{
   color: black ;
 }
+.title {
+  padding-left: 15px;
+  margin-top: 0px;
+  font-weight: 100;
+}
+.details-header {
+  color: #777;
+  font-weight: 200;
+}
+.username {
+  padding-left: 10px;
+  margin-top: -5px;
+  font-weight: 100;
+}
+.user-details {
+  font-size: .9em;
+}
 /* Everything but the jumbotron gets side spacing for mobile first views */
 .header,
 .marketing,
