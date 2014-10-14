@@ -16,8 +16,8 @@ exports.syncData = function(req, res, next){
   var sandbox = new Events();
   console.log("syncing data ....");
   var setStack = [];
-  var setSize = 20000;
-  var setIndex =415;
+  var setSize = 200;
+  var setIndex = 1;
   maxRef.once('value', function(maxIt){
     var setsCount = Math.round(maxIt.val()/setSize)
     for (var i = setIndex; i < setsCount; i++) {
@@ -25,35 +25,35 @@ exports.syncData = function(req, res, next){
     };
     var returnCount = setIndex * setSize;
 
-
     function loopSet(){
       var min = setStack[0];
       var max = setStack[1];
 
       console.log(min, max)
-      for (var i = min; i < max+10; i++) {
+      for (var i = min; i < max; i++) {
         (function go(i){
           console.log(i, 'invoked go')
           request('https://hacker-news.firebaseio.com/v0/item/'+ i +'.json', function(error, response, body){
             if(error) {
+
               returnCount++;
+              if(returnCount === max){
+                console.log("EMIT");
+                sandbox.emit("nextSet");
+              }
               throw error;
             };
-            var item = JSON.parse(body)
-            if(item["type"] === "user"){
-              var user = new User(item);
-              user.hnId = item.id;
-              return user.save(function(err, user){
-                if(err) throw err;
-                returnCount++;
-                if(returnCount === (setIndex * setSize)){
-                  console.log("EMIT");
-                  sandbox.emit("nextSet");
-                }
-                console.log(returnCount, "SAVED", max);
-                return;
-              });
+            if(body === null){
+              conosle.log("response was empty")
+              returnCount++;
+              if(returnCount === max){
+                console.log("EMIT");
+                sandbox.emit("nextSet");
+              }
+              return
             }
+            var item = JSON.parse(body)
+
             if(item["type"] === "story"){
               var story = new Story(item);
               story.hnId = item.id;
@@ -78,7 +78,7 @@ exports.syncData = function(req, res, next){
                   console.log("EMIT");
                   sandbox.emit("nextSet");
                 }
-                console.log(returnCount, "SAVED", max);
+                console.log(returnCount, item.id, "SAVED", max);
                 return;
               });
             }
@@ -123,6 +123,12 @@ exports.syncData = function(req, res, next){
                 console.log(returnCount, "SAVED", max);
                 return;
               });
+            } else {
+              returnCount++
+              if(returnCount === max){
+                console.log("EMIT");
+                sandbox.emit("nextSet");
+              }
             }
           });
         })(i);

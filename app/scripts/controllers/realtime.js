@@ -20,7 +20,7 @@ angular.module('hnlyticsApp')
     	url: 'http://localhost:9000/stories'
     })
     .then(function(stories){
-    	console.log(stories.data)
+    	console.log(stories.data);
     	$scope.stories = stories.data;
     })
     .catch(function(err){

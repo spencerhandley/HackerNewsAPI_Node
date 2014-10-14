@@ -6,5 +6,5 @@ app.listen(port);
 var mongoose = require('mongoose');
 mongoose.connect(db);
 var sync = require('./sync.js')
-// sync.syncData()
+sync.syncData()
 console.log('Badass Server now listening on port ' + port);

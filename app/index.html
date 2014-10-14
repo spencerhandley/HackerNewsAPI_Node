@@ -22,17 +22,17 @@
 
     <!-- Add your site or application content here -->
       <!-- <div class="header"> -->
-        <ul class="nav nav-pills pull-right">
+<!--         <ul class="nav nav-pills pull-right">
           <li class="active"><a ng-href="#">Home</a></li>
           <li><a ng-href="#/about">About</a></li>
           <li><a ng-href="#">Contact</a></li>
-        </ul>
+        </ul> -->
         <h3 class="title">HN ANALYTICS</h3>
       <!-- </div> -->
       <div class="left-panel col-sm-2">
-        <ul class="nav nav-stacked row ">
-          <li class="row nav-item" style="display:hidden;"></li>
-          <li class="row nav-item"><a href="#/realtime">REAL-TIME<span class="glyphicon glyphicon-stats pull-right"></span></a></li>
+        <ul class="nav nav-stacked row " >
+          <li class="row" style="display:hidden;"></li>
+          <li class="row nav-item" ><a href="#/realtime">REAL-TIME<span class="glyphicon glyphicon-stats pull-right"></span></a></li>
           <li class="row nav-item"><a href="#/latest">LATEST POST<span class="glyphicon glyphicon-time pull-right"></span></a></li>
           <li class="row nav-item"><a href="#/lifetime">LIFETIME<span class="glyphicon glyphicon-tasks pull-right"></span></a></li>
           <li class="row nav-item"><a href="#/global">GLOBAL<span class="glyphicon glyphicon-globe pull-right"></span></a></li>
@@ -63,6 +63,8 @@
     <![endif]-->
     <!-- endbuild -->
 
+    <script src="bower_components/underscore/underscore.js"></script>
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -82,11 +84,18 @@
     <!-- endbower -->
     <!-- endbuild -->
 
+    <script src="bower_components/d3/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1-beta.2/Chart.min.js"></script>
+    <script src="bower_components/angles/angles.js"></script>
+
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/controllers/about.js"></script>
         <script src="scripts/controllers/realtime.js"></script>
+        <script src="scripts/services/userStats.js"></script>
+        <script src="scripts/services/getSubs.js"></script>
+
         <!-- endbuild -->
 </body>
 </html>

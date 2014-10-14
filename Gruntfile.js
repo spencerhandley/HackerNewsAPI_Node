@@ -64,28 +64,28 @@ module.exports = function (grunt) {
         ]
       }
     },
-    express: {
-      options: {
-        port: 9000
-        // Override defaults here
-      },
-      dev: {
-        options: {
-          script: './server/server.js'
-        }
-      },
-      prod: {
-        options: {
-          script: './server/server.js',
-          node_env: 'production'
-        }
-      },
-      test: {
-        options: {
-          script: './server/server.js'
-        }
-      }
-    },
+    // express: {
+    //   options: {
+    //     port: 9000
+    //     // Override defaults here
+    //   },
+    //   dev: {
+    //     options: {
+    //       script: './server/server.js'
+    //     }
+    //   },
+    //   prod: {
+    //     options: {
+    //       script: './server/server.js',
+    //       node_env: 'production'
+    //     }
+    //   },
+    //   test: {
+    //     options: {
+    //       script: './server/server.js'
+    //     }
+    //   }
+    // },
     // The actual grunt server settings
     connect: {
       options: {
@@ -389,11 +389,11 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'wiredep',
-      // 'concurrent:server',
+      'concurrent:server',
       'autoprefixer',
-      'express:dev',
+      // 'express:dev',
 
-      // 'connect:livereload',
+      'connect:livereload',
       'watch'
     ]);
   });
@@ -408,7 +408,7 @@ module.exports = function (grunt) {
     'concurrent:test',
     'autoprefixer',
     'connect:test',
-    'karma'
+    // 'karma'
   ]);
 
   grunt.registerTask('build', [

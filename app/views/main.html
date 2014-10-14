@@ -1,23 +1,23 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
+<div class="col-sm-10">
+  <div class="row">
+    <h1>PAUL GRAHAM</h1>
+    
+  </div>
+  <div class="row">
+    <canvas barchart options="options" responsive=true data="chart" width="500" height="300"></canvas>
+    <div>
+      <p>This week:{{thisWeeksTot}}</p>
+    </div>
+  </div>
+    
 </div>
-
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
-
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
-
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
+<div class="col-sm-2">
+  <div class="row">
+    <h4>USER DETAILS</h4> 
+    <p>Member Since: {{createdAt}}</p>
+    <p>Karma: {{karma}}</p>
+    <p>About: {{about}}</p>
+    <p>Submissions: {{submitted.length}}</p>
+    <p>Latest Post: {{latestPost}}</p>
+  </div>
 </div>

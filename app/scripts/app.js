@@ -16,14 +16,21 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'angles'
 
   ])
+  .constant('_', window._)
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'MainCtrl',
+        resolve: {
+          'UserServiceData': function(UserStatsService){
+            return UserStatsService.promise
+          }
+        }
       })
       .when('/about', {
         templateUrl: 'views/about.html',
