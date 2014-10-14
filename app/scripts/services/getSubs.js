@@ -2,15 +2,22 @@
 angular.module('hnlyticsApp')
 .service('getSubsService', function($firebase, $q, $rootScope){ 
 
-	var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
-	var items = ref.child('item');
-	var userRef = ref.child('user').child('pg');
 	var submissions = [];
 	var stories = [];
 	var comments = [];
-	var getSubs = function(cb){
+	var getSubs = function(user, cb){
+		var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
+		var items = ref.child('item');
+		var userRef = ref.child('user').child(user);
 		userRef.child('submitted').once('value', function(submitted){
-			var userSubmitted = submitted.val().slice(12000, submitted.val().length)
+			var startingPoint;
+			if(submitted.val().length > 1000){
+				var segments = Math.floor(submitted.val().length/1000)
+				startingPoint = 1000 * (segments);
+			} else if ( submitted.val().length <1000){
+				startingPoint = 0;
+			}
+			var userSubmitted = submitted.val().slice(startingPoint, submitted.val().length)
 			for (var i = 0; i < userSubmitted.length; i++) {
 				(function(i){
 					items.child(userSubmitted[i]).once('value', function(sub){
@@ -37,9 +44,9 @@ angular.module('hnlyticsApp')
 	}
 
 	return {
-		subs: function(){
+		subs: function(user){
 			var deferred = $q.defer(); 
-			getSubs(function(subs, stories, comments){
+			getSubs(user,function(subs, stories, comments){
 				$rootScope.$apply(function(){
 	        		deferred.resolve(subs);
 	       		});

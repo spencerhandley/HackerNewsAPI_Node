@@ -19,14 +19,7 @@ angular.module('hnlyticsApp')
 	weeksDiff,
 	averageTimes,
 	timesOfTheDay;
-
 	
-	timesOfTheDay = [5,4,6,3,2,6,5,4,3,3,6,8,4,3,5,7,4,5,2,8,5,4,5,5];
-	var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
-	var items = ref.child('item');
-	var userRef = ref.child('user').child('pg');
-	var userSync = $firebase(userRef);
-	var userObj = userSync.$asObject();
 
 	var matchesYear = function(obj, year){
 		return year === obj;
@@ -38,9 +31,13 @@ angular.module('hnlyticsApp')
 		return week === obj;
 	};
 
-	var getUserData = function(cb){
-
-		getSubsService.subs().then(function(subs){
+	var getUserData = function(user, cb){
+		var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
+		var items = ref.child('item');
+		var userRef = ref.child('user').child(user);
+		var userSync = $firebase(userRef);
+		var userObj = userSync.$asObject();
+		getSubsService.subs(user).then(function(subs){
 			// AVERAGE POINTS PER POST
 			var submissions = subs;
 			average = Math.round((function(){
@@ -91,7 +88,6 @@ angular.module('hnlyticsApp')
 				var year = now.getFullYear();
 				var objDate = new Date(obj.time*1000)
 				var objYear = objDate.getFullYear()
-				console.log( matchesYear(objYear, year))
 				return matchesYear(objYear, year);
 			});
 			lastYearsSubs = _.filter(subs, function(obj){
@@ -108,7 +104,6 @@ angular.module('hnlyticsApp')
 				var month = now.getMonth();
 				var objDate = new Date(obj.time*1000)
 				var objMonths = objDate.getMonth()
-				console.log("this month", month, objMonths)
 				return matchesMonth(objMonths, month);
 			});
 			lastMonthsSubs = _.filter(subs, function(obj){
@@ -162,9 +157,9 @@ angular.module('hnlyticsApp')
 		});
 	}
 	return {
-		results: function(scope){
+		results: function(user, scope){
 			var deferred = $q.defer(); 
-			getUserData(function(data,scope){
+			getUserData(user, function(data,scope){
 				$timeout(function() {
 					$rootScope.$apply(function(){
 		        		deferred.resolve(data);

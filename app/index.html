@@ -16,6 +16,7 @@
     <!-- endbuild -->
   </head>
   <body ng-app="hnlyticsApp">
+  <div ng-controller="MainCtrl">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -27,23 +28,41 @@
           <li><a ng-href="#/about">About</a></li>
           <li><a ng-href="#">Contact</a></li>
         </ul> -->
+        <img src="/images/logo.png" class="pull-left logo">
         <h3 class="title">HN ANALYTICS</h3>
-        
+        <form ng-submit="pullUserData(inputUser)">
+          <input type="text" ng-model="inputUser" class="un-input" placeholder="Search Username" ></input>
+        </form>
       <!-- </div> -->
-      <div class="left-panel col-sm-2">
-        <ul class="nav nav-stacked row " >
+
+      <div class="left-panel col-sm-2" >
+        <ul class="nav nav-stacked row " left-nav  >
           <li class="row" style="display:hidden;"></li>
-          <li class="row nav-item" ><a href="#/realtime">REAL-TIME<span class="glyphicon glyphicon-stats pull-right"></span></a></li>
-          <li class="row nav-item"><a href="#/latest">LATEST POST<span class="glyphicon glyphicon-time pull-right"></span></a></li>
-          <li class="row nav-item"><a href="#/lifetime">LIFETIME<span class="glyphicon glyphicon-tasks pull-right"></span></a></li>
-          <li class="row nav-item"><a href="#/global">GLOBAL<span class="glyphicon glyphicon-globe pull-right"></span></a></li>
-          <li class="row nav-item"><a href="#/polls">POLLS<span class="glyphicon glyphicon-align-left pull-right"></span></a></li>
-          <li class="row nav-item"><a href="#/comments">YOUR COMMENTS<span class="glyphicon glyphicon-pencil pull-right"></span></a></li>
+          <li class="row nav-item " ng-click="setCurrent(1)" ng-class="{ selected: current === 1 }" ><a href="#/">TIME OF DAY<span class="glyphicon glyphicon-time pull-right"></span></a></li>
+          <li class="row nav-item" ng-class="{ selected: current === 2 }"><a href="#/latest" ng-click="setCurrent(2)">LATEST POST<span class="glyphicon glyphicon-stats pull-right"></span></a></li>
+          <li class="row nav-item" ng-class="{ selected: current === 3 }" ><a href="#/lifetime" ng-click="setCurrent(3)">LIFETIME<span class="glyphicon glyphicon-tasks pull-right"></span></a></li>
+          <li class="row nav-item" ng-class="{ selected: current === 4 }" ><a href="#/global" ng-click="setCurrent(4)">GLOBAL<span class="glyphicon glyphicon-globe pull-right"></span></a></li>
+          <li class="row nav-item" ng-class="{ selected: current === 5 }" ><a href="#/polls" ng-click="setCurrent(5)">POLLS<span class="glyphicon glyphicon-align-left pull-right"></span></a></li>
+          <li class="row nav-item" ng-class="{ selected: current === 6 }"><a href="#/comments" ng-click="setCurrent(6)">YOUR COMMENTS<span class="glyphicon glyphicon-pencil pull-right"></span></a></li>
         </ul>
       </div>
-      <div ng-view="" class="col-sm-10"></div>
+      <div ng-view="" class="col-sm-8"></div>
+      <div class="col-sm-2">
+        <div class=" sidebar">
+          <h4 class="details-header">USER DETAILS</h4> 
 
-      
+          <canvas doughnutchart class="userdgnt center" data="dgntData" width="160" height="160"></canvas>
+          <p class="center pie-label">Post Types</p>
+          <p class="user-details">Member Since: <p class=" detail-p">{{createdAt}}</p></p>
+          <p class="user-details">Karma: <p class=" detail-p">{{karma}}</p></p>
+          <p class="user-details">About: <p class=" detail-p">{{about}}</p></p>
+          <p class="user-details">Submissions: <p class=" detail-p">{{submitted.length}}</p></p>
+          <p class="user-details">Latest Post: <p class=" detail-p">{{latestPost}}</p></p>
+
+        </div>
+      </div>
+    </div>
+    
 
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
@@ -93,9 +112,12 @@
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/controllers/about.js"></script>
+        <script src="scripts/controllers/latest.js"></script>
+
         <script src="scripts/controllers/realtime.js"></script>
         <script src="scripts/services/userStats.js"></script>
         <script src="scripts/services/getSubs.js"></script>
+        <script src="scripts/directives/leftNav.js"></script>
 
         <!-- endbuild -->
 </body>

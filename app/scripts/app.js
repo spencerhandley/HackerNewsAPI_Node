@@ -25,7 +25,6 @@ angular
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl',
         resolve: {
           'UserServiceData': function(UserStatsService){
             return UserStatsService.promise
@@ -42,7 +41,7 @@ angular
       })
       .when('/latest', {
         templateUrl: 'views/latest.html',
-        controller: 'AboutCtrl'
+        controller: 'LatestCtrl'
       })
        .when('/lifetime', {
         templateUrl: 'views/lifetime.html',

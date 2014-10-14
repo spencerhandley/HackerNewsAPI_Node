@@ -1,29 +1,50 @@
-<div class="col-sm-10">
+<div class="col-sm-12">
   <div class="row">
-    <h1 class="username">PAUL GRAHAM</h1>
-    
+    <h1 class="username" ng-if="userName === 'pg'">PAUL GRAHAM</h1>
+    <h1 class="username"ng-if="userName !== 'pg'">{{userName.toUpperCase()}}</h1>
+
   </div>
   <div class="row">
+    <p class="center chart-label">Post Frequency by Time of Day</p>
     <canvas barchart options="options" responsive=true data="chart" width="500" height="300"></canvas>
-    <div>
-      <div class="total-node">
-        <p>{{thisWeeksTot}}</p>
-      </div>
-      <div class="change-node">
-        <p>{{weeks.diff}}</p>
 
+  </div>
+  <div class="row counts-container">
+    <div class="col-sm-4">
+      <p class="post-count-label">7D</p>
+      <div class="post-count-node">
+        <div class="total-node">
+          <p>0</p>
+        </div>
+        <div class="change-node same">
+          <p>+0%</p>
+
+        </div>
       </div>
     </div>
-  </div>
-    
-</div>
-<div class="col-sm-2">
-  <div class="row">
-    <h4 class="details-header">USER DETAILS</h4> 
-    <p class="user-details">Member Since: {{createdAt}}</p>
-    <p class="user-details">Karma: {{karma}}</p>
-    <p class="user-details">About: {{about}}</p>
-    <p class="user-details">Submissions: {{submitted.length}}</p>
-    <p class="user-details">Latest Post: {{latestPost}}</p>
+    <div class="col-sm-4 ">
+      <p class="post-count-label">1M</p>
+      <div class="post-count-node">
+        <div class="total-node ">
+          <p>12</p>
+        </div>
+        <div class="change-node down">
+          <p>-32%</p>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <p class="post-count-label">6M</p>
+      <div class="post-count-node">
+        <div class="total-node">
+          <p>89</p>
+        </div>
+        <div class="change-node up">
+          <p>+15%</p>
+
+        </div>
+      </div>
+    </div>
   </div>
 </div>
