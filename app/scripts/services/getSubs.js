@@ -35,7 +35,7 @@ angular.module('hnlyticsApp')
 							submissions.push(sub.val());
 							comments.push(sub.val());
 						} else{
-							return
+							return;
 						};
 					});
 				})(i);
@@ -47,8 +47,9 @@ angular.module('hnlyticsApp')
 		subs: function(user){
 			var deferred = $q.defer(); 
 			getSubs(user,function(subs, stories, comments){
+				var data = [subs, stories, comments]
 				$rootScope.$apply(function(){
-	        		deferred.resolve(subs);
+	        		deferred.resolve(data);
 	       		});
 	       	});
 	       	return deferred.promise;

@@ -14,10 +14,10 @@
       <p class="post-count-label">7D</p>
       <div class="post-count-node">
         <div class="total-node">
-          <p>0</p>
+          <p>{{thisWeeksTot}}</p>
         </div>
         <div class="change-node same">
-          <p>+0%</p>
+          <p>+{{weeksDiff || 0}}%</p>
 
         </div>
       </div>
@@ -26,22 +26,22 @@
       <p class="post-count-label">1M</p>
       <div class="post-count-node">
         <div class="total-node ">
-          <p>12</p>
+           <p>{{thisMonthsTot}}</p>
         </div>
         <div class="change-node down">
-          <p>-32%</p>
+          <p>+{{monthsDiff || 0}}%</p>
 
         </div>
       </div>
     </div>
     <div class="col-sm-4">
-      <p class="post-count-label">6M</p>
+      <p class="post-count-label">1Y</p>
       <div class="post-count-node">
         <div class="total-node">
-          <p>89</p>
+          <p>{{thisYearsTot}}</p>
         </div>
         <div class="change-node up">
-          <p>+15%</p>
+          <p>+{{yearsDiff || 0}}%</p>
 
         </div>
       </div>

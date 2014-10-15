@@ -1,6 +1,6 @@
 'use strict';
 angular.module('hnlyticsApp')
-.service('UserStatsService', function($firebase, $timeout, getSubsService, $q, $rootScope){
+.service('UserStatsService', function($firebase, $timeout, $http, getSubsService, $q, $rootScope){
 	var average, 
 	thisYearsSubs, 
 	lastYearsSubs, 
@@ -37,24 +37,52 @@ angular.module('hnlyticsApp')
 		var userRef = ref.child('user').child(user);
 		var userSync = $firebase(userRef);
 		var userObj = userSync.$asObject();
-		getSubsService.subs(user).then(function(subs){
+		getSubsService.subs(user).then(function(data){
+
+
+			var stories = data[1]
+			var comments = data[2]
 			// AVERAGE POINTS PER POST
-			var submissions = subs;
+			var submissions = data[0];
 			average = Math.round((function(){
 				var totalPts = 0;
-				for (var i = 0; i < subs.length; i++) {
-					if(subs[i].score){
-						totalPts += subs[i].score;
+				for (var i = 0; i < submissions.length; i++) {
+					if(submissions[i].score){
+						totalPts += submissions[i].score;
 					} else if (submissions[i].kids){
-						totalPts += subs[i].kids.length;
+						totalPts += submissions[i].kids.length;
 					}
 				}
-				return totalPts/subs.length;
+				return totalPts/submissions.length;
 			})());
 
+
+			var lastPost = stories[stories.length-1]
+			console.log(lastPost)
+
+			var lastPostCommentDates = function(){
+				var results = []
+				function recurse(kids){
+					for(var i = 0; i < kids.length ; i++){
+						$http({
+							method: "GET",
+							url: "https://hacker-news.firebaseio.com/v0/item/"+ lastPost.kids[i] + ".json"
+						}).then(function(data){
+							results.push(data.data);
+							if(data.data.kids && data.data.kids.length > 0){
+								recurse(data.data.kids);
+							}
+						});
+
+					}
+				}
+				recurse(lastPost.kids)
+				return results
+			}
+			var lastPostComments = lastPostCommentDates()
 			// POST FREQUENCY BY TIME
 			timesOfTheDay = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-			var averageTimes = subs
+			var averageTimes = submissions
 			  .map(function(sub) {
 			  	var subTime = new Date(sub.time*1000);
 			    return subTime.getHours();
@@ -83,14 +111,14 @@ angular.module('hnlyticsApp')
 
 
 			// SUBMISSIONS BY YEAR
-			thisYearsSubs = _.filter(subs, function(obj){
+			thisYearsSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var year = now.getFullYear();
 				var objDate = new Date(obj.time*1000)
 				var objYear = objDate.getFullYear()
 				return matchesYear(objYear, year);
 			});
-			lastYearsSubs = _.filter(subs, function(obj){
+			lastYearsSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var year = now.getFullYear()-1;
 				var objDate = new Date(obj.time*1000)
@@ -99,14 +127,14 @@ angular.module('hnlyticsApp')
 			});
 
 			// SUBMISSIONS BY MONTH
-			thisMonthsSubs = _.filter(subs, function(obj){
+			thisMonthsSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var month = now.getMonth();
 				var objDate = new Date(obj.time*1000)
 				var objMonths = objDate.getMonth()
 				return matchesMonth(objMonths, month);
 			});
-			lastMonthsSubs = _.filter(subs, function(obj){
+			lastMonthsSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var month = now.getMonth()-1;
 				var objDate = new Date(obj.time*1000)
@@ -115,14 +143,14 @@ angular.module('hnlyticsApp')
 			});
 
 			// SUBMISSIONS BY WEEK
-			thisWeeksSubs = _.filter(subs, function(obj){
+			thisWeeksSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var week = now.getWeek();
 				var objDate = new Date(obj.time)
 				var objWeek = objDate.getWeek()
 				return matchesWeek(objWeek, week);
 			});
-			lastWeeksSubs = _.filter(subs, function(obj){
+			lastWeeksSubs = _.filter(submissions, function(obj){
 				var now = new Date();
 				var week = now.getWeek()-1;
 				var objDate = new Date(obj.time)
@@ -144,6 +172,10 @@ angular.module('hnlyticsApp')
 			weeksDiff =	thisWeeksTot - lastWeeksTot / lastWeeksTot;
 			
 			cb({average: average,
+			comments: comments,
+			stories: stories,
+			lastPost: lastPost,
+			lastPostComments: lastPostComments, 
 			thisYearsTot: thisYearsTot,
 			lastYearsTot: lastYearsTot,
 			thisMonthsTot: thisMonthsTot,
@@ -159,7 +191,7 @@ angular.module('hnlyticsApp')
 	return {
 		results: function(user, scope){
 			var deferred = $q.defer(); 
-			getUserData(user, function(data,scope){
+			getUserData(user, function(data){
 				$timeout(function() {
 					$rootScope.$apply(function(){
 		        		deferred.resolve(data);

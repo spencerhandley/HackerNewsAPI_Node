@@ -9,9 +9,10 @@
  */
 angular.module('hnlyticsApp')
   .controller('MainCtrl', function ($scope, $firebase, $timeout, $sce, UserStatsService) {
+	$scope.userName = 'pg' 
   	var ref = new Firebase('https://hacker-news.firebaseio.com/v0/');
   	var items = ref.child('item');
-	var userRef = ref.child('user').child('pg');
+	var userRef = ref.child('user').child($scope.userName);
 	var userSync = $firebase(userRef);
 	var userObj = userSync.$asObject();
 	var timesOfTheDay;
@@ -22,9 +23,7 @@ angular.module('hnlyticsApp')
 	}
 	$scope.inputUser;
 
-	$scope.userName = 'pg' 
 	var injectData = function (user) {
-		console.log(user)
 		UserStatsService.results(user, $scope).then(function(data){
 			timesOfTheDay = data.timesOfTheDay
 			$scope.chart = {
@@ -39,6 +38,22 @@ angular.module('hnlyticsApp')
 			        }
 			    ], 
 			};
+			var dailyScores = [3,4,5,6,8,13,17,20,26,33,41,50,55,57,50,40,30,20,10,5,5,3,2,2]
+			$scope.lastPostChart = {
+			    labels : ["9/12", "9/13", "9/14", "9/15", "9/16", "9/17", "9/18","9/19", "9/20", "9/21", "9/22", "9/23", "9/24", "9/25","9/26","9/27","9/28","9/29","9/30","9/31","10/1","10/2","10/3","10/4"],
+			    datasets : [
+			        {
+			            fillColor : "rgba(151,187,205,0)",
+			            strokeColor : "#FF6600",
+			            pointColor : "rgba(151,187,205,0)",
+			            pointStrokeColor : "#e67e22",
+			            data : dailyScores
+			        }
+			    ], 
+			};
+			$scope.lastPost = data.lastPost
+			$scope.lastPostDate = new Date(data.lastPost.time*1000).toString()
+			// $scope.lastPost.time = lastpostDate.toString()
 
 			$scope.dgntData = [ 
 				{
@@ -71,27 +86,41 @@ angular.module('hnlyticsApp')
 		        // Number - Number of animation steps
 		        animationSteps: 60
 		    }
+		    $scope.thisWeeksTot = data.thisWeeksTot;
+			$scope.lastWeeksTot = data.lastWeeksTot;
+			$scope.thisMonthsTot = data.thisMonthsTot;
+			$scope.lastMonthsTot = data.lastMonthsTot;
+			$scope.thisYearsTot = data.thisYearsTot;
+			$scope.lastYearsTot = data.lastYearsTot;
+			$scope.weeksDiff = data.weeksDiff;
+			$scope.monthsDiff = data.monthsDiff;
+			$scope.yearsDiff = data.yearsDiff;
 		});	
 	}
 	injectData($scope.userName)
 	$scope.pullUserData = function(inputUser){
-		console.log("hey!", inputUser)
 		$scope.userName = inputUser;
 		injectData(inputUser)
+		userSync = $firebase(userRef);
+		console.log($scope.userName)
+		userRef = ref.child('user').child($scope.userName);
+		userSync = $firebase(userRef);
+		userObj = userSync.$asObject();
+		setUserObj()
+
 	}
-			// $scope.thisWeeksTot = UserStatsService.thisWeeksTot;
-			// $scope.lastWeeksTot = UserStatsService.lastWeeksTot;
-			// $scope.thisMonthsTot = UserStatsService.thisMonthsTot;
-			// $scope.lastMonthsTot = UserStatsService.lastMonthsTot;
-			// $scope.thisYearsTot = UserStatsService.thisYearsTot;
-			// $scope.lastYearsTot = UserStatsService.lastYearsTot;
+			
 
     
-	userObj.$loaded().then(function() {
+	var setUserObj = function(){
+		userObj.$loaded().then(function() {
 			var created = new Date(userObj.created*1000);
 			$scope.karma = userObj.karma;
 			$scope.createdAt = created.getMonth().toString()+ '/' + created.getFullYear().toString();
-			$scope.about = userObj.about;
+			var div = document.createElement("div");
+			div.innerHTML = userObj.about;
+			var text = div.textContent || div.innerText || "";
+			$scope.about =  _.unescape(text);
 			$scope.submitted = userObj.submitted;
 
 			var latestRef = items.child(userObj.submitted[0]);
@@ -105,5 +134,7 @@ angular.module('hnlyticsApp')
 					// if is a comment, recursively find the parent story through the parents chain
 				});
 			});
-	});
+		});
+	};
+	setUserObj()
 });
