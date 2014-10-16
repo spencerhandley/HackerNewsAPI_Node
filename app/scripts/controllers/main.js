@@ -19,7 +19,6 @@ angular.module('hnlyticsApp')
 	$scope.current = 1
 	$scope.setCurrent = function(val){
 		$scope.current = val
-		$scope.$apply()
 	}
 	$scope.inputUser;
 
@@ -52,7 +51,7 @@ angular.module('hnlyticsApp')
 			    ], 
 			};
 			$scope.lastPost = data.lastPost
-			$scope.lastPostDate = new Date(data.lastPost.time*1000).toString()
+			$scope.lastPostDate = moment(data.lastPost.time*1000).format("MMM Do YYYY")
 			// $scope.lastPost.time = lastpostDate.toString()
 
 			$scope.dgntData = [ 

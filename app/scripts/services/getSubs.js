@@ -10,14 +10,13 @@ angular.module('hnlyticsApp')
 		var items = ref.child('item');
 		var userRef = ref.child('user').child(user);
 		userRef.child('submitted').once('value', function(submitted){
-			var startingPoint;
+			var max;
 			if(submitted.val().length > 1000){
-				var segments = Math.floor(submitted.val().length/1000)
-				startingPoint = 1000 * (segments);
+				max=1000
 			} else if ( submitted.val().length <1000){
-				startingPoint = 0;
+				max = submitted.val().length
 			}
-			var userSubmitted = submitted.val().slice(startingPoint, submitted.val().length)
+			var userSubmitted = submitted.val().slice(0, max)
 			for (var i = 0; i < userSubmitted.length; i++) {
 				(function(i){
 					items.child(userSubmitted[i]).once('value', function(sub){

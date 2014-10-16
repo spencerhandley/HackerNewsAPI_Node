@@ -57,7 +57,7 @@
           <p class="user-details">Karma: <p class=" detail-p">{{karma}}</p></p>
           <p class="user-details">Submissions: <p class=" detail-p">{{submitted.length}}</p></p>
           <p class="user-details">About: <p class=" detail-p">{{about}}</p></p>
-          <p class="user-details">Latest Post: <p class=" detail-p">{{latestPost}}</p></p>
+          <p class="user-details">Latest Post: <a href="{{lastPost.url}}"><p class=" detail-p">{{lastPost.title}}</p></a></p>
 
         </div>
       </div>
@@ -101,12 +101,14 @@
     <script src="bower_components/firebase-simple-login/firebase-simple-login.js"></script>
     <script src="bower_components/mockfirebase/dist/mockfirebase.js"></script>
     <script src="bower_components/angularfire/dist/angularfire.min.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
     <script src="bower_components/d3/d3.min.js"></script>
     <script src="scripts/assets/charts.js"></script>
     <script src="bower_components/angles/angles.js"></script>
+    <script src="bower_components/moment/min/moment.min.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>

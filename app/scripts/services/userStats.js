@@ -38,12 +38,10 @@ angular.module('hnlyticsApp')
 		var userSync = $firebase(userRef);
 		var userObj = userSync.$asObject();
 		getSubsService.subs(user).then(function(data){
-
-
-			var stories = data[1]
-			var comments = data[2]
-			// AVERAGE POINTS PER POST
+			var stories = data[1];
+			var comments = data[2];
 			var submissions = data[0];
+			// AVERAGE POINTS PER POST
 			average = Math.round((function(){
 				var totalPts = 0;
 				for (var i = 0; i < submissions.length; i++) {
@@ -57,29 +55,46 @@ angular.module('hnlyticsApp')
 			})());
 
 
-			var lastPost = stories[stories.length-1]
-			console.log(lastPost)
+			var lastPost = stories[0]
 
-			var lastPostCommentDates = function(){
+			var lastPostCommentDates = function(cb){
 				var results = []
 				function recurse(kids){
 					for(var i = 0; i < kids.length ; i++){
+						if(results.length < 1000){
 						$http({
 							method: "GET",
 							url: "https://hacker-news.firebaseio.com/v0/item/"+ lastPost.kids[i] + ".json"
 						}).then(function(data){
-							results.push(data.data);
+							results.push(data.data.time);
 							if(data.data.kids && data.data.kids.length > 0){
 								recurse(data.data.kids);
 							}
+							return;
 						});
+						}
 
 					}
-				}
-				recurse(lastPost.kids)
-				return results
+				};
+				recurse(lastPost.kids);
+				cb(results);
 			}
-			var lastPostComments = lastPostCommentDates()
+			
+			var sortedComments = lastPostCommentDates(function(results){
+				var byDay = {}
+				for (var i = 0; i < results.length; i++) {
+					var date = new Date(results[i]*1000);
+					var day = date.getDay();
+					if(byDay[day]){
+						byDay[day]++;
+					} else {
+						byDay[day] = 1;
+					}
+				};
+				console.log(byDay)
+				return byDay
+			});
+
 			// POST FREQUENCY BY TIME
 			timesOfTheDay = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 			var averageTimes = submissions
@@ -175,7 +190,7 @@ angular.module('hnlyticsApp')
 			comments: comments,
 			stories: stories,
 			lastPost: lastPost,
-			lastPostComments: lastPostComments, 
+			lastPostComments: sortedComments, 
 			thisYearsTot: thisYearsTot,
 			lastYearsTot: lastYearsTot,
 			thisMonthsTot: thisMonthsTot,
